@@ -1,32 +1,50 @@
 const mongoose = require('mongoose')
+const WalletTransaction = require("../models/walletTransaModel")
 
 const customerSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',  
-     },
+        ref: 'User',
+    },
     customerName: {
         type: String,
-
     },
     customerEmail: {
         type: String,
-        required: true,
         unique: true
     },
     customerPhone: {
         type: Number,
-        // require: true
     },
     customerAddress: {
         type: String,
-        // required: true
+    },
+    phone1: {
+        type: String,
+        match: /^[0-9]{10}$/,
+    },
+    phone2: {
+        type: String,
+        // required: true,
+        match: /^[0-9]{10}$/,
+    },
+    role: {
+        type: String,
+        default: 'user'
     }
 },
     {
         timestamps: true
     })
 
+customerSchema.pre('remove', async function (next) {
+    try {
+        await WalletTransaction.deleteMany({ customer: this._id });
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
 
 
 
